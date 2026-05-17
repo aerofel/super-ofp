@@ -271,4 +271,3 @@ Total: one Python script + this SKILL.md. JS engine and CSS are inlined; no sepa
 
 - **`ofp-extract`** — the column-accurate text extraction primitive (bbox-layout based). Always used as the first step of super-ofp; can also be called standalone for any OFP→text workflow that needs precise column alignment.
 - **`dez-briefing`** — produces a tabbed crew briefing summary (different output format; use when the user wants a separate UI rather than an OFP mirror).
-- **`read-orlando`** — Aircalin OM-A / MANEX search. Useful when you need the authoritative definition of OFP fields (e.g. SPA.ETOPS.115 § "Fenêtre d'accessibilité" gave us the ETP-based validity-window formula).

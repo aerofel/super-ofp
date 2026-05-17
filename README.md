@@ -94,7 +94,6 @@ super-ofp/
 
 - **[`ofp-extract`](https://github.com/aerofel/ofp-extract)** — bbox-based column-accurate text extraction (always used as step 1)
 - **`dez-briefing`** — tabbed crew briefing summary (different output shape; use when you want a separate UI, not an OFP mirror)
-- **`read-orlando`** — operator OM-A / MANEX search (authoritative source for OFP field definitions, e.g. SPA.ETOPS.115 § "Fenêtre d'accessibilité")
 
 ## License
 

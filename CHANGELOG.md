@@ -2,6 +2,11 @@
 
 All notable changes to the `super-ofp` skill are documented here. Newest entries on top.
 
+## 2026-05-17 — Drop read-orlando / read-olb references
+
+- Removed `read-orlando` from the "Related skills" sections of README and SKILL.md.
+- No runtime impact — neither skill was ever called by `build_super_ofp.py`; the mentions were documentation pointers only.
+
 ## 2026-05-17 — README scrub
 
 - Removed operator-specific branding from README (no "Aircalin", no sample `ACI-*` filenames).
