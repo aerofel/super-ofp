@@ -2,6 +2,12 @@
 
 All notable changes to the `super-ofp` skill are documented here. Newest entries on top.
 
+## 2026-05-17 — README scrub
+
+- Removed operator-specific branding from README (no "Aircalin", no sample `ACI-*` filenames).
+- Switched all "CFP" mentions to "OFP" for consistency.
+- Generalised the in-flight scenario section heading.
+
 ## 2026-05-17 — Initial public release
 
 - Single-file converter `scripts/build_super_ofp.py` turning Aircalin navtech OFP PDFs into self-contained interactive HTML.

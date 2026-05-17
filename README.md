@@ -1,6 +1,6 @@
 # super-ofp
 
-**Interactive HTML overlay for Aircalin OFPs.** Converts a navtech CFP PDF into a single self-contained HTML file that looks exactly like the original — column-accurate monospaced text, all 60+ pages — and overlays a live recompute engine on top.
+**Interactive HTML overlay for OFPs.** Converts a navtech OFP PDF into a single self-contained HTML file that looks exactly like the original — column-accurate monospaced text, all 60+ pages — and overlays a live recompute engine on top.
 
 > Fill in actuals (DISCR, TAXI, ZFW, ATA, AFU, A.RF). Every derived value — REQUESTED FUEL, TOF, TOW, EBO, LAW, UNDERLOAD, every ETA, ETOPS scenario LATEST, in-flight validity windows — shifts in real time.
 
@@ -49,20 +49,20 @@ new_window_end   = orig_end   + lateness + scenario_delta
 
 `lateness = ATA₀ − (EOBT + 20)`. Taxi burns before V1 → affects REQUESTED FUEL only, not TOF/TOW/EBO/LAW.
 
-## In-flight scenario convention (Aircalin)
+## In-flight scenario convention
 
 - **Planning**: critical scenario = **1EO DEPRESS** (combined failure, printed on validity windows).
 - **In-flight**: 1EO DEPRESS excluded. Eligible = **2ENG DEPRESS** and **1EO DRIFTDOWN**. Lowest-fuel one wins per ETP — that's what the green highlight tracks and what the recomputed validity windows use.
 
 ## How to use
 
-Inside Claude Code, just hand the model an OFP PDF (`ACI-XXXX-YYYY-MM-DD-HHMM-AAAA.pdf`) and say *"super ofp"* — the skill auto-activates.
+Inside Claude Code, just hand the model an OFP PDF and say *"super ofp"* — the skill auto-activates.
 
 Or run the script directly:
 
 ```bash
-python3 scripts/build_super_ofp.py path/to/ACI-0501-2026-05-10-0935-VTBS.pdf
-# → path/to/ACI-0501-2026-05-10-0935-VTBS.super.html
+python3 scripts/build_super_ofp.py path/to/your-ofp.pdf
+# → path/to/your-ofp.super.html
 ```
 
 ### Requirements
@@ -94,8 +94,8 @@ super-ofp/
 
 - **[`ofp-extract`](https://github.com/aerofel/ofp-extract)** — bbox-based column-accurate text extraction (always used as step 1)
 - **`dez-briefing`** — tabbed crew briefing summary (different output shape; use when you want a separate UI, not an OFP mirror)
-- **`read-orlando`** — Aircalin OM-A / MANEX search (authoritative source for OFP field definitions, e.g. SPA.ETOPS.115 § "Fenêtre d'accessibilité")
+- **`read-orlando`** — operator OM-A / MANEX search (authoritative source for OFP field definitions, e.g. SPA.ETOPS.115 § "Fenêtre d'accessibilité")
 
 ## License
 
-Internal Aircalin tooling. Not for redistribution outside the operator.
+Internal operator tooling. Not for redistribution.
