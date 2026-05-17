@@ -111,7 +111,7 @@ For each of the 6 scenario blocks (3 scenarios × 2 ETPs):
    ```
    Formula: `LATEST = ATA_0 + tetp + divert + 2 min` (2-min turn-back allowance).
 
-2. **TOTAL CRITICAL DIV FUEL** value highlighted (green) for the **lowest-fuel single-failure scenario** per ETP — i.e. `min(fuel)` over `{2ENG DEPRESS, 1EO DRIFTDOWN}`. **1EO DEPRESS is excluded** (combined failure, not single).
+2. **TOTAL CRITICAL DIV FUEL** value highlighted (green) for the **highest-fuel single-failure scenario** per ETP — i.e. `max(fuel)` over `{2ENG DEPRESS, 1EO DRIFTDOWN}`. **1EO DEPRESS is excluded** (combined failure, not single). The highest single-failure fuel is the worst-case in-flight requirement, which the margin must cover.
 
 3. **F/R margin annotation** appended right next to the highlighted critical-fuel value:
    ```
@@ -201,7 +201,7 @@ The JS engine is ~250 lines of vanilla JS embedded in the HTML. Single `recomput
 ## In-flight scenario selection convention (Aircalin)
 
 - **At flight planning**: critical scenario is **1EO DEPRESS** (combined failure, used for the printed validity windows and the per-ETP CRITICAL SCENARIO field).
-- **In-flight**: 1EO DEPRESS is excluded as a *combined* failure. Eligible scenarios are the two single failures: **2ENG DEPRESS** and **1EO DRIFTDOWN**. The one with the **lowest TOTAL CRITICAL DIV FUEL** is selected per ETP. On the sample CFP both ETPs select 1EO DRIFTDOWN (lower fuel because aircraft cruises at FL160 instead of FL100).
+- **In-flight**: 1EO DEPRESS is excluded as a *combined* failure. Eligible scenarios are the two single failures: **2ENG DEPRESS** and **1EO DRIFTDOWN**. The one with the **highest TOTAL CRITICAL DIV FUEL** is selected per ETP — that's the worst-case single-failure fuel requirement, which the margin must cover.
 
 ## Sanity check on the BKK→NOU sample (`ACI-0501-2026-05-10-0935-VTBS FULL PACK.pdf`)
 
@@ -212,8 +212,8 @@ With `ATA_0 = 09:55`, defaults TAXI = 400, ZFW = 169700, DISCR = 0:
 - `UNDERLOAD` = +4527 kg (MTOW-bound)
 - Main navlog: 50 ETA spans, terminating at NWWW with `data-ctme="0917"` (ETA 19:12 Z)
 - Alt navlog: 14 ETA spans, terminating at YBBN with `data-ctme="1130"` (ETA 21:25 Z, anchored on main NWWW)
-- 6 ETOPS scenario blocks with LATEST values, 2 green-highlighted critical-fuel values (both 1EO DRIFTDOWN: 14613 and 9687) with +20961 and +11179 margin annotations
-- 3 in-flight validity windows: WAAA 15:22 → 18:31 (−5), YBCS 17:18 → 20:30 (−6), NWWW 19:16 → 20:30 (−6), all with `1EO DRIFTDOWN:` scenario label
+- 6 ETOPS scenario blocks with LATEST values, 2 green-highlighted critical-fuel values (the per-ETP **highest** single-failure fuel — 2ENG DEPRESS or 1EO DRIFTDOWN, whichever is greater) with F/R margin annotations
+- 3 in-flight validity windows (WAAA, YBCS, NWWW) labelled with the per-ETP selected scenario
 - EEP row light-brown with `-30 MIN: 13:55`; EXP row light-brown
 - 62 bold WPT name labels (FIR lines excluded)
 
@@ -230,7 +230,7 @@ grep -c 'sofp-diff' <pdf>.super.html                # one per wpt N-coord line
 
 # ETOPS
 grep -c 'sofp-etops-eta' <pdf>.super.html           # 6 (3 scenarios × 2 ETPs)
-grep -c 'sofp-crit-lowest' <pdf>.super.html         # 2 (1 per ETP) + 1 CSS rule
+grep -c 'sofp-crit-highest' <pdf>.super.html        # 2 (1 per ETP) + 1 CSS rule
 grep -c 'sofp-fr-ok\|sofp-fr-warn' <pdf>.super.html # 2 + a few CSS rules
 
 # Validity windows

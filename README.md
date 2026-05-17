@@ -27,7 +27,7 @@ A single `<pdf-stem>.super.html` file next to the source PDF:
 | **DSP COMMENTS** (p.3) | DOWC, EQUIPAGE, PREVI PAX (with auto J/W/Y sum), CODE CGO, MEL/CDL |
 | **Fuel & weights** (p.5) | DISCR / TAXI / ZFW editable → REQUESTED FUEL, TOF, TOW, EBO, LAW, UNDERLOAD recompute live. Red when limits bust. |
 | **NAVLOG** | Every waypoint gets editable A.RF, AFU, ATA. DIFF (AFU−EFU) shown red/green. ETA = ATA₀ + CTME. Late/early colour per waypoint. |
-| **ETOPS** | LATEST appended per scenario. TOTAL CRITICAL DIV FUEL highlighted on lowest single-failure scenario per ETP. F/R margin annotation in green/orange. |
+| **ETOPS** | LATEST appended per scenario. TOTAL CRITICAL DIV FUEL highlighted on the **highest** single-failure scenario per ETP (worst-case in-flight fuel requirement). F/R margin annotation in green/orange. |
 | **In-flight validity windows** | SUITABILITY ETOPS windows recomputed live from ATA₀ + selected in-flight scenario at the bounding ETP. |
 | **Weather** | DEP/ARR/OTHER labels tagged with the time of interest; TAF period tokens overlapping that time are highlighted. |
 | **Toolbar** | Live `late ±N min` indicator (ATA₀ vs planned takeoff), Reset, Print, Share (native iOS/macOS share sheet with the filled-in snapshot). |

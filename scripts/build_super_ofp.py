@@ -267,13 +267,14 @@ def build_etops_index(lines: list) -> dict:
           ('scenario', scenario_name, altn_a, altn_b, tetp_str, divert_str)
         The follow-up lines (ETP S..., TIME/ ...) are scanned to extract
         the CTME-to-ETP and the divert duration (both as 'HHMM' strings).
-      • TOTAL CRITICAL DIV FUEL line for the lowest-fuel in-flight scenario:
-          ('crit_lowest',)
+      • TOTAL CRITICAL DIV FUEL line for the highest-fuel in-flight scenario:
+          ('crit_highest',)
         For each ETP altn-pair, we compare TOTAL CRITICAL DIV FUEL across
         the two in-flight scenarios (2ENG DEPRESS, 1EO DRIFTDOWN — 1EO
         DEPRESS is excluded because it's a combined, not single, failure)
-        and flag the lower one. transform_line wraps its fuel value with
-        a highlight span."""
+        and flag the higher one — that's the worst-case single-failure
+        fuel requirement, which dictates the in-flight margin. transform_line
+        wraps its fuel value with a highlight span."""
     idx: dict[int, tuple] = {}
     blocks_by_pair: dict[str, list] = {}            # altns -> [(scenario, total_line_idx, fuel)]
     scenarios_by_pair: dict[str, dict] = {}         # altns -> {scenario: (tetp_min, divert_min)}
@@ -324,25 +325,27 @@ def build_etops_index(lines: list) -> dict:
                 blocks_by_pair.setdefault(altns, []).append(
                     (scenario, total_line_idx, total_fuel, est_fr, holding))
 
-    # For each ETP altn-pair, highlight the LOWEST critical fuel among the
+    # For each ETP altn-pair, highlight the HIGHEST critical fuel among the
     # in-flight scenarios (2ENG DEPRESS vs 1EO DRIFTDOWN). 1EO DEPRESS is
-    # excluded per Aircalin in-flight planning convention. Also compute the
-    # F/R-OVER-ETP margin: diff = EST F/R OVER ETP − TOTAL CRITICAL DIV FUEL.
-    # If diff < HOLDING/1500FT value → orange (margin tighter than 15-min
-    # alternate-hold reserve), otherwise green (comfortable margin).
+    # excluded as a combined failure — only single failures count in-flight.
+    # The highest fuel is the worst-case single-failure requirement and is
+    # what the margin must cover. Also compute the F/R-OVER-ETP margin:
+    # diff = EST F/R OVER ETP − TOTAL CRITICAL DIV FUEL. If diff < HOLDING/
+    # 1500FT value → orange (margin tighter than 15-min alternate-hold
+    # reserve), otherwise green (comfortable margin).
     for altns, scenarios in blocks_by_pair.items():
         elig = [t for t in scenarios if t[0] in INFLIGHT_SCENARIOS]
         if len(elig) >= 2:
-            lowest = min(elig, key=lambda x: x[2])
-            _sc, lowest_line_idx, lowest_fuel, lowest_fr, lowest_hold = lowest
-            diff = (lowest_fr - lowest_fuel) if (lowest_fr is not None) else None
-            is_warn = (diff is not None and lowest_hold is not None
-                       and diff < lowest_hold)
-            idx[lowest_line_idx] = ('crit_lowest', diff, is_warn)
+            highest = max(elig, key=lambda x: x[2])
+            _sc, highest_line_idx, highest_fuel, highest_fr, highest_hold = highest
+            diff = (highest_fr - highest_fuel) if (highest_fr is not None) else None
+            is_warn = (diff is not None and highest_hold is not None
+                       and diff < highest_hold)
+            idx[highest_line_idx] = ('crit_highest', diff, is_warn)
 
     # ── In-flight VALIDITY WINDOW recalc ───────────────────────────────────
     # Per-ETP delta = (in-flight scenario LATEST) − (1EO DEPRESS LATEST).
-    # The in-flight scenario is the one with the **lowest TOTAL CRITICAL
+    # The in-flight scenario is the one with the **highest TOTAL CRITICAL
     # DIV FUEL** among single failures (2ENG DEPRESS, 1EO DRIFTDOWN) —
     # 1EO DEPRESS is excluded as a combined failure. Static (no ATA dep).
     # Mapped to altns positionally in the SUITABILITY ETOPS list:
@@ -354,10 +357,10 @@ def build_etops_index(lines: list) -> dict:
                     if t[0] in INFLIGHT_SCENARIOS and t[0] in pair_scens]
         if not eligible:
             return None
-        lowest_sc, _ = min(eligible, key=lambda x: x[1])
+        highest_sc, _ = max(eligible, key=lambda x: x[1])
         orig_latest = sum(pair_scens['1EO DEPRESS'])
-        new_latest  = sum(pair_scens[lowest_sc])
-        return (new_latest - orig_latest, lowest_sc)
+        new_latest  = sum(pair_scens[highest_sc])
+        return (new_latest - orig_latest, highest_sc)
 
     etp_deltas = [_etp_delta(scens, blocks_by_pair.get(pair, []))
                   for pair, scens in scenarios_by_pair.items()]
@@ -889,7 +892,7 @@ def transform_line(line: str, parsed: dict, navlog_idx: dict,
         if info[0] == 'scenario':
             _, scenario, altn_a, altn_b, tetp, divert = info
             out = html.escape(line) + make_etops_eta_marker(tetp, divert, f'{altn_a}/{altn_b}')
-        elif info[0] == 'crit_lowest':
+        elif info[0] == 'crit_highest':
             # Highlight the first 5-digit number after "TOTAL CRITICAL DIV FUEL"
             # and insert the F/R-margin annotation INSIDE the trailing spaces
             # so the per-altn columns to the right stay aligned.
@@ -918,7 +921,7 @@ def transform_line(line: str, parsed: dict, navlog_idx: dict,
                 else:
                     middle = ' ' * gap_len
                 out = (html.escape(line[:start])
-                       + f'<span class="sofp-crit-lowest">{m.group(1)}</span>'
+                       + f'<span class="sofp-crit-highest">{m.group(1)}</span>'
                        + middle
                        + html.escape(line[next_pos:]))
             else:
@@ -1304,10 +1307,11 @@ body {
   padding: 0 2px;
   border-radius: 2px;
 }
-/* Per-ETP lowest TOTAL CRITICAL DIV FUEL among in-flight scenarios
-   (2ENG DEPRESS vs 1EO DRIFTDOWN) — 1EO DEPRESS excluded.
-   No padding — must keep exact monospace column width. */
-.sofp-crit-lowest {
+/* Per-ETP highest TOTAL CRITICAL DIV FUEL among in-flight scenarios
+   (2ENG DEPRESS vs 1EO DRIFTDOWN) — 1EO DEPRESS excluded. Highest
+   fuel = worst-case single-failure requirement, which the margin
+   must cover. No padding — must keep exact monospace column width. */
+.sofp-crit-highest {
   background: #d4f7c5;
   color: #145c14;
   font-weight: 700;
