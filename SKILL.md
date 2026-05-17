@@ -200,7 +200,7 @@ The JS engine is ~250 lines of vanilla JS embedded in the HTML. Single `recomput
 
 ## In-flight scenario selection convention (Aircalin)
 
-- **At flight planning**: critical scenario is **1EO DEPRESS** (combined failure, used for the printed validity windows and the per-ETP CRITICAL SCENARIO field).
+- **At flight planning**: Eligible scenarios are the 3 scenarios: **1EO DEPRESS**, **2ENG DEPRESS** and **1EO DRIFTDOWN**. The one with the **highest TOTAL CRITICAL DIV FUEL** is selected per ETP — that's the worst-case fuel requirement, which the margin must cover.
 - **In-flight**: 1EO DEPRESS is excluded as a *combined* failure. Eligible scenarios are the two single failures: **2ENG DEPRESS** and **1EO DRIFTDOWN**. The one with the **highest TOTAL CRITICAL DIV FUEL** is selected per ETP — that's the worst-case single-failure fuel requirement, which the margin must cover.
 
 ## Sanity check on the BKK→NOU sample (`ACI-0501-2026-05-10-0935-VTBS FULL PACK.pdf`)

@@ -2,6 +2,11 @@
 
 All notable changes to the `super-ofp` skill are documented here. Newest entries on top.
 
+## 2026-05-18 — Clarify flight-planning critical-scenario selection
+
+- Documented that **at flight planning all 3 scenarios are eligible** (1EO DEPRESS, 2ENG DEPRESS, 1EO DRIFTDOWN) and the one with the **highest TOTAL CRITICAL DIV FUEL** wins per ETP — that's the worst-case requirement the margin must cover.
+- Also fixed a stale "lowest-fuel" line in README left over from the prior min→max correction.
+
 ## 2026-05-18 — Fix in-flight critical-fuel scenario selection
 
 - The per-ETP green-highlighted TOTAL CRITICAL DIV FUEL now picks the **highest** single-failure fuel (`max` over `{2ENG DEPRESS, 1EO DRIFTDOWN}`) instead of the lowest. The highest figure is the worst-case in-flight requirement that the margin must cover.

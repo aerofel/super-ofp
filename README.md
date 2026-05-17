@@ -51,8 +51,8 @@ new_window_end   = orig_end   + lateness + scenario_delta
 
 ## In-flight scenario convention
 
-- **Planning**: critical scenario = **1EO DEPRESS** (combined failure, printed on validity windows).
-- **In-flight**: 1EO DEPRESS excluded. Eligible = **2ENG DEPRESS** and **1EO DRIFTDOWN**. Lowest-fuel one wins per ETP — that's what the green highlight tracks and what the recomputed validity windows use.
+- **Planning**: all 3 scenarios eligible (**1EO DEPRESS**, **2ENG DEPRESS**, **1EO DRIFTDOWN**). The one with the **highest TOTAL CRITICAL DIV FUEL** wins per ETP — that's the worst-case fuel requirement the margin must cover.
+- **In-flight**: 1EO DEPRESS excluded (combined failure). Eligible = **2ENG DEPRESS** and **1EO DRIFTDOWN**. Highest-fuel one wins per ETP — that's what the green highlight tracks and what the recomputed validity windows use.
 
 ## How to use
 
