@@ -2,6 +2,13 @@
 
 All notable changes to the `super-ofp` skill are documented here. Newest entries on top.
 
+## 2026-05-18 — Validity-window baseline = planning critical scenario
+
+- `_etp_delta()` now uses the **planning critical scenario** (highest TOTAL CRITICAL DIV FUEL over **all 3** scenarios) as the baseline for the in-flight validity-window recalculation, instead of hard-coding `1EO DEPRESS`. The in-flight critical (highest fuel over single failures only) stays as the scenario being shifted to.
+- When planning critical and in-flight critical are the same scenario, `scenario_delta = 0` and the recomputed window only shifts by `lateness`. When they differ, the delta reflects the LATEST gap between the two.
+- Removed the `'1EO DEPRESS' not in pair_scens` guard since the planning critical is no longer fixed to that scenario.
+- Updated the inline JS comment for `data-delta` and the SKILL.md formula prose to describe the new baseline.
+
 ## 2026-05-18 — Clarify flight-planning critical-scenario selection
 
 - Documented that **at flight planning all 3 scenarios are eligible** (1EO DEPRESS, 2ENG DEPRESS, 1EO DRIFTDOWN) and the one with the **highest TOTAL CRITICAL DIV FUEL** wins per ETP — that's the worst-case requirement the margin must cover.

@@ -344,23 +344,31 @@ def build_etops_index(lines: list) -> dict:
             idx[highest_line_idx] = ('crit_highest', diff, is_warn)
 
     # ── In-flight VALIDITY WINDOW recalc ───────────────────────────────────
-    # Per-ETP delta = (in-flight scenario LATEST) − (1EO DEPRESS LATEST).
-    # The in-flight scenario is the one with the **highest TOTAL CRITICAL
-    # DIV FUEL** among single failures (2ENG DEPRESS, 1EO DRIFTDOWN) —
-    # 1EO DEPRESS is excluded as a combined failure. Static (no ATA dep).
-    # Mapped to altns positionally in the SUITABILITY ETOPS list:
-    #   altn[i] uses ETP[min(i, n_etps − 1)]
+    # Per-ETP delta = (in-flight critical LATEST) − (planning critical LATEST).
+    #
+    # The PLANNING critical scenario (which the printed validity window is
+    # built from) is the one with the **highest TOTAL CRITICAL DIV FUEL**
+    # over ALL 3 scenarios — 1EO DEPRESS, 2ENG DEPRESS, 1EO DRIFTDOWN.
+    #
+    # The IN-FLIGHT critical scenario is the one with the **highest TOTAL
+    # CRITICAL DIV FUEL** among single failures only (2ENG DEPRESS, 1EO
+    # DRIFTDOWN) — 1EO DEPRESS excluded as a combined failure.
+    #
+    # When planning == in-flight (1EO DEPRESS didn't win at planning), the
+    # delta is 0 and the printed window matches the in-flight window.
+    # Static (no ATA dep). Mapped to altns positionally in the SUITABILITY
+    # ETOPS list: altn[i] uses ETP[min(i, n_etps − 1)]
     def _etp_delta(pair_scens, pair_blocks):
-        if '1EO DEPRESS' not in pair_scens:
+        planning_elig = [(t[0], t[2]) for t in pair_blocks if t[0] in pair_scens]
+        inflight_elig = [(t[0], t[2]) for t in pair_blocks
+                         if t[0] in INFLIGHT_SCENARIOS and t[0] in pair_scens]
+        if not planning_elig or not inflight_elig:
             return None
-        eligible = [(t[0], t[2]) for t in pair_blocks
-                    if t[0] in INFLIGHT_SCENARIOS and t[0] in pair_scens]
-        if not eligible:
-            return None
-        highest_sc, _ = max(eligible, key=lambda x: x[1])
-        orig_latest = sum(pair_scens['1EO DEPRESS'])
-        new_latest  = sum(pair_scens[highest_sc])
-        return (new_latest - orig_latest, highest_sc)
+        planning_sc, _ = max(planning_elig, key=lambda x: x[1])
+        inflight_sc, _ = max(inflight_elig, key=lambda x: x[1])
+        orig_latest = sum(pair_scens[planning_sc])
+        new_latest  = sum(pair_scens[inflight_sc])
+        return (new_latest - orig_latest, inflight_sc)
 
     etp_deltas = [_etp_delta(scens, blocks_by_pair.get(pair, []))
                   for pair, scens in scenarios_by_pair.items()]
@@ -1634,7 +1642,7 @@ __CONFIG_JSON__
   // In-flight VALIDITY WINDOW recompute. Each span carries:
   //   data-orig-start  = printed window start (minutes since midnight)
   //   data-orig-end    = printed window end   (minutes since midnight)
-  //   data-delta       = scenario shift (single-failure LATEST − 1EO DEPRESS LATEST), in min
+  //   data-delta       = scenario shift (in-flight critical LATEST − planning critical LATEST), in min
   //   data-scenario    = which single-failure scenario is binding (display label)
   // The in-flight window =
   //     start: orig_start + lateness

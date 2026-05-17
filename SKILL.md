@@ -140,12 +140,15 @@ WAAA VALIDITY WINDOW  15:22Z TO 18:36Z   1EO DRIFTDOWN: 15:22Z TO 18:31Z (-5)
 Formula (per altn):
 ```
 lateness          =  ATA_0 − (EOBT + 20)          (planned takeoff)
-scenario_delta    =  LATEST(inflight) − LATEST(1EO DEPRESS)    at the bounding ETP
-                                              (in-flight = min-fuel of {2ENG DEPRESS, 1EO DRIFTDOWN})
+scenario_delta    =  LATEST(inflight critical) − LATEST(planning critical)   at the bounding ETP
+                       planning critical  = max-fuel over {1EO DEPRESS, 2ENG DEPRESS, 1EO DRIFTDOWN}
+                       in-flight critical = max-fuel over {2ENG DEPRESS, 1EO DRIFTDOWN}
 
 new_start         =  orig_start  +  lateness
 new_end           =  orig_end    +  lateness  +  scenario_delta
 ```
+
+When planning critical and in-flight critical happen to be the same scenario (i.e. 1EO DEPRESS didn't win the planning selection), `scenario_delta = 0` and the recomputed window only shifts by `lateness`.
 
 Altn-to-ETP mapping is positional — `altn[i]` uses `ETP[min(i, n_etps − 1)]`, matching route order. The delta is computed once at build time per ETP, the lateness applies dynamically on every ATA_0 keystroke. If `ATA_0` is empty, lateness = 0 and only the scenario_delta applies. A trailing `(late ±N)` tag shows up when there's lateness.
 
